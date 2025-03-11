@@ -80,6 +80,21 @@ function addListeners() {
     document
         .getElementById('worryAnimationBlock')
         .addEventListener('click', worryAnimationHandler); 
+
+    const a = animaster().addMove(111, {x: 10, y: -10});
+    const b = a.addFadeOut(400);
+
+    document.getElementById('aPlay')
+        .addEventListener('click', function () {
+            const block = document.getElementById('aBlock');
+            a.play(block);
+        });  
+    
+    document.getElementById('bPlay')
+        .addEventListener('click', function () {
+            const block = document.getElementById('bBlock');
+            b.play(block);
+        });  
 }
 
 function animaster() {
@@ -103,7 +118,7 @@ function animaster() {
 
     function addFadeIn(duration) {
         _steps.push(new AnimationOperation('fadeIn', { duration: duration } ));
-        return this;
+        return createAnimationContext(_steps);
     }
 
     function resetFadeIn(element) {
@@ -121,7 +136,7 @@ function animaster() {
 
     function addFadeOut(duration) {
         _steps.push(new AnimationOperation('fadeOut', { duration: duration } ));
-        return this;
+        return createAnimationContext(_steps);
     }
 
     function resetFadeOut(element) {
@@ -138,7 +153,7 @@ function animaster() {
 
     function addMove(duration, translation) {
         _steps.push(new AnimationOperation('move', { duration: duration, translation: translation } ));
-        return this;
+        return createAnimationContext(_steps);
     }
 
     function scale(element, duration, ratio)
@@ -153,7 +168,7 @@ function animaster() {
 
     function addScale(duration, ratio) {
         _steps.push(new AnimationOperation('scale', { duration: duration, ratio: ratio } ));
-        return this;
+        return createAnimationContext(_steps);
     }
 
     function borderRadius(element, duration, ratio) {
@@ -166,7 +181,7 @@ function animaster() {
 
     function addBorderRadius(duration, ratio) {
         _steps.push(new AnimationOperation('borderRadius', { duration: duration, ratio: ratio } ));
-        return this;
+        return createAnimationContext(_steps);
     }
 
     function delay(delay) {
@@ -175,7 +190,7 @@ function animaster() {
 
     function addDelay(delay) {
         _steps.push(new AnimationOperation('delay', { delay: delay } ));
-        return this
+        return createAnimationContext(_steps);
     }
 
     async function innerPlay(element) {
@@ -243,26 +258,31 @@ function animaster() {
         };
     }
 
-    return {
-        fadeIn,
-        resetFadeIn,
-        resetFadeOut,
-        fadeOut,
-        move,
-        scale,
-        delay,
-        addMove,
-        addScale,
-        addFadeIn,
-        addFadeOut,
-        addBorderRadius,
-        addDelay,
-        play,
-        moveAndHide,
-        showAndHide,
-        heartBeating,
-        buildHandler
-    };
+    function createAnimationContext(steps) {
+        return {
+            _steps: [...steps],
+            fadeIn: fadeIn,
+            resetFadeIn: resetFadeIn,
+            resetFadeOut: resetFadeOut,
+            fadeOut: fadeOut,
+            move: move,
+            scale: scale,
+            delay: delay,
+            addMove: addMove,
+            addScale: addScale,
+            addFadeIn: addFadeIn,
+            addFadeOut: addFadeOut,
+            addBorderRadius: addBorderRadius,
+            addDelay: addDelay,
+            play: play,
+            moveAndHide: moveAndHide,
+            showAndHide: showAndHide,
+            heartBeating: heartBeating,
+            buildHandler: buildHandler
+        };
+    }
+
+    return createAnimationContext(_steps);
 }
 
 function getTransform(translation, ratio) {
