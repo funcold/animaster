@@ -114,7 +114,16 @@ function animaster() {
         return this;
     }
 
-    function play(element) {
+    function delay(delay) {
+        return new Promise(resolve => setTimeout(resolve, delay));
+    }
+
+    function addDelay(delay) {
+        _steps.push(new AnimationOperation('delay', { delay: delay } ));
+        return this
+    }
+
+    async function play(element) {
         for (let step of _steps) {
             console.log(step.type);
             switch (step.type) {
@@ -130,6 +139,9 @@ function animaster() {
                 case 'fadeOut':
                     fadeOut(element, step.params.duration);
                     break;
+                case 'delay':
+                    await delay(step.params.delay);
+                    break;
             }
         }
         _steps = []
@@ -140,8 +152,7 @@ function animaster() {
     }
 
     function showAndHide(element, duration) {
-        this.fadeIn(element, duration / 3);
-        setTimeout(x => this.fadeOut(element, duration / 3), duration / 3)
+        this.addFadeIn(duration / 3).addDelay(duration / 3).addFadeOut(duration / 3).play(element);
     }
 
     function heartBeating(element) {
@@ -157,10 +168,12 @@ function animaster() {
         fadeOut,
         move,
         scale,
+        delay,
         addMove,
         addScale,
         addFadeIn,
         addFadeOut,
+        addDelay,
         play,
         moveAndHide,
         showAndHide,
