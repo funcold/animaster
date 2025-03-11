@@ -116,6 +116,7 @@ function animaster() {
 
     function play(element) {
         for (let step of _steps) {
+            console.log(step.type);
             switch (step.type) {
                 case 'move':
                     move(element, step.params.duration, step.params.translation);
@@ -132,9 +133,10 @@ function animaster() {
             }
         }
         _steps = []
+    }
+
     function moveAndHide(element, duration) {
-        this.move(element, duration * 2 / 5, {x: 100, y: 20});
-        this.fadeOut(element, duration * 3 / 5);
+        this.addMove(duration * 2 / 5, {x: 100, y: 20}).addFadeOut(duration * 3 / 5).play(element);
     }
 
     function showAndHide(element, duration) {
