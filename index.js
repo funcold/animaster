@@ -1,6 +1,12 @@
 addListeners();
 
 function addListeners() {
+    document.getElementById('borderRadiusPlay')
+        .addEventListener('click', function () {
+            const block = document.getElementById('borderRadiusBlock');
+            animaster().addBorderRadius(500, 50).play(block);
+        });
+    
     document.getElementById('fadeInPlay')
         .addEventListener('click', function () {
             const block = document.getElementById('fadeInBlock');
@@ -64,11 +70,16 @@ function addListeners() {
             }
         }); 
     
-    document.getElementById('worryAnimationPlay')
-        .addEventListener('click', function () {
-            const block = document.getElementById('worryAnimationBlock');
-            animaster().addMove(200, {x: 80, y: 0}).addMove(200, {x: 0, y: 0}).addMove(200, {x: 80, y: 0}).addMove(200, {x: 0, y: 0}).play(block);
-        });  
+    const worryAnimationHandler = animaster()
+        .addMove(200, { x: 80, y: 0 })
+        .addMove(200, { x: 0, y: 0 })
+        .addMove(200, { x: 80, y: 0 })
+        .addMove(200, { x: 0, y: 0 })
+        .buildHandler();
+    
+    document
+        .getElementById('worryAnimationBlock')
+        .addEventListener('click', worryAnimationHandler); 
 }
 
 function animaster() {
@@ -130,16 +141,31 @@ function animaster() {
         return this;
     }
 
-    function scale(element, duration, ratio) {
+    function scale(element, duration, ratio)
+    {
         return new Promise(resolve => {
             element.style.transitionDuration = `${duration}ms`;
             element.style.transform = getTransform(null, ratio);
+            element.style.borderRadius = `${ratio}%`;
+            setTimeout(resolve, duration);
+        });
+    }  
+
+    function addScale(duration, ratio) {
+        _steps.push(new AnimationOperation('scale', { duration: duration, ratio: ratio } ));
+        return this;
+    }
+
+    function borderRadius(element, duration, ratio) {
+        return new Promise(resolve => {
+            element.style.transitionDuration = `${duration}ms`;
+            element.style.borderRadius = `${ratio}%`;
             setTimeout(resolve, duration);
         });
     }
 
-    function addScale(duration, ratio) {
-        _steps.push(new AnimationOperation('scale', { duration: duration, ratio: ratio } ));
+    function addBorderRadius(duration, ratio) {
+        _steps.push(new AnimationOperation('borderRadius', { duration: duration, ratio: ratio } ));
         return this;
     }
 
@@ -167,6 +193,9 @@ function animaster() {
                     break;
                 case 'fadeOut':
                     await fadeOut(element, step.params.duration);
+                    break;
+                case 'borderRadius':
+                    await borderRadius(element, step.params.duration, step.params.ratio);
                     break;
                 case 'delay':
                     await delay(step.params.delay);
@@ -204,6 +233,13 @@ function animaster() {
         };
     }
 
+    function buildHandler() {
+        return async (event) => {
+            const element = event.currentTarget;
+            play(element);
+        };
+    }
+
     return {
         fadeIn,
         resetFadeIn,
@@ -216,11 +252,13 @@ function animaster() {
         addScale,
         addFadeIn,
         addFadeOut,
+        addBorderRadius,
         addDelay,
         play,
         moveAndHide,
         showAndHide,
-        heartBeating
+        heartBeating,
+        buildHandler
     };
 }
 
