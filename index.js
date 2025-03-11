@@ -54,7 +54,7 @@ function addListeners() {
             const block = document.getElementById('showAndHideBlock');
             animaster().showAndHide(block, 1000, 1.25);
         });  
-        
+
     let heartBeatingAnimation = null;
 
     document.getElementById('heartBeatingPlay')
@@ -178,7 +178,7 @@ function animaster() {
         return this
     }
 
-    async function play(element) {
+    async function innerPlay(element) {
         for (let step of _steps) {
             console.log(step.type);
             switch (step.type) {
@@ -202,7 +202,16 @@ function animaster() {
                     break;
             }
         }
-        _steps = []
+    }
+
+    async function play(element, cycled=false) {
+        if (!cycled) {
+            innerPlay(element);
+            _steps = [];
+            return;
+        } 
+
+        return setInterval(x => innerPlay(element), 1200);    
     }
 
     function moveAndHide(element, duration) {
@@ -215,13 +224,7 @@ function animaster() {
 
     function heartBeating(element) {
         let intervalId = null;
-    
-        const beat = () => {
-            this.scale(element, 500, 1.4); 
-            setTimeout(() => this.scale(element, 500, 1), 100); 
-        };
-    
-        intervalId = setInterval(beat, 1000);
+        this.addScale(500, 1.4).addDelay(100).addScale(500, 1).play(element, cycled=true).then((res) => intervalId = res)
     
         return {
             stop: () => {
